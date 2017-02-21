@@ -1,0 +1,25 @@
+{
+  "name": "tap-github-issues",
+  "version": "0.0.1",
+  "description": "Test reporter that converts TAP output into github issues in multiple orgs/repos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MailOnline/tap-github-issues.git"
+  },
+  "keywords": [
+    "tap",
+    "github",
+    "issues",
+    "reporter"
+  ],
+  "author": "MailOnline",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MailOnline/tap-github-issues/issues"
+  },
+  "homepage": "https://github.com/MailOnline/tap-github-issues#readme"
+}
