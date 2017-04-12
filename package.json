@@ -21,5 +21,12 @@
   "bugs": {
     "url": "https://github.com/MailOnline/tap-github-issues/issues"
   },
-  "homepage": "https://github.com/MailOnline/tap-github-issues#readme"
+  "homepage": "https://github.com/MailOnline/tap-github-issues#readme",
+  "dependencies": {
+    "co": "^4.6.0",
+    "minimist": "^1.2.0",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.0",
+    "tap-parser": "git+ssh://git@github.com/MailOnline/tap-parser"
+  }
 }
