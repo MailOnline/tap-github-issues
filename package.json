@@ -36,10 +36,12 @@
     "tap-parser": "git+ssh://git@github.com/MailOnline/tap-parser"
   },
   "devDependencies": {
+    "coveralls": "^2.13.0",
     "eslint": "^3.19.0",
     "mocha": "^3.2.0",
     "nock": "^9.0.13",
-    "nyc": "^10.2.0"
+    "nyc": "^10.2.0",
+    "pre-commit": "^1.2.2"
   },
   "nyc": {
     "exclude": [
