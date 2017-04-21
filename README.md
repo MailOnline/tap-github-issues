@@ -1,7 +1,9 @@
 # tap-github-issues
 Test reporter that converts TAP output into github issues in multiple orgs/repos
 
+[![Build Status](https://travis-ci.org/MailOnline/tap-github-issues.svg?branch=master)](https://travis-ci.org/MailOnline/tap-github-issues)
 [![npm version](https://badge.fury.io/js/tap-github-issues.svg)](https://www.npmjs.com/package/tap-github-issues)
+[![Coverage Status](https://coveralls.io/repos/MailOnline/tap-github-issues/badge.svg?branch=master&service=github)](https://coveralls.io/github/MailOnline/tap-github-issues?branch=master)
 
 
 ## Install
