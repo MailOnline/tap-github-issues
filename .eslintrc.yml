@@ -22,6 +22,7 @@ rules:
   no-else-return: 2
   no-eq-null: 2
   no-fallthrough: 2
+  no-inner-declarations: 0
   no-invalid-this: 2
   no-return-assign: 2
   no-shadow: 1

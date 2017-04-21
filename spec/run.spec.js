@@ -5,16 +5,19 @@ const assert = require('assert');
 const nock = require('nock');
 const fs = require('fs');
 const path = require('path');
+const moment = require('moment');
 
 
 describe('cli', () => {
   let log;
   const cons = {};
+  let stream;
 
   beforeEach(() => {
     replaceConsole();
     process.stdin.setEncoding('utf8');
     log = '';
+    stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input.tap'));
   });
 
   afterEach(() => {
@@ -23,131 +26,73 @@ describe('cli', () => {
   });
 
   it('should create issue', () => {
-    mock('get', '/repos/MailOnline/videojs-vast-vpaid/issues?labels=ghlint&state=all&per_page=30&page=1', './fixtures/existing_issues.json');
+    mockIssues([]);
     mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues', './fixtures/create_issue.json');
-    const stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input.tap'));
-    // mock(apiPath, file)
+
     return ok(run(['-l', 'ghlint'], stream, false))
     .then(() => {
-      console.log(log);
-      // assert.equal(log, 'warning MailOnline/videojs-vast-vpaid: repo-homepage - not satisfied');
+      const lines = log.split('\n');
+      assert(/^not ok \(creating/.test(lines[0]));
+      assert(/^ok \(no issue/.test(lines[1]));
       assert(nock.isDone());
     });
   });
 
-  // describe('check command', () => {
-    // it('should check repos', () => {
-    //   githubMock.mock('/repos/MailOnline/videojs-vast-vpaid', '../fixtures/videojs-vast-vpaid-repo-meta');
-    //   githubMock.mock('/repos/milojs/milo', '../fixtures/milo-repo-meta');
+  it('should close issue', () => {
+    mockIssues('./fixtures/issues_1.json');
+    mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/2/comments', {}); // add comment
+    mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/2', {}); // close issue
 
-    //   return ok(run(['check', '-c', './spec/fixtures/config-repos.json'], false))
-    //   .then(() => {
-    //     assert.equal(log, 'warning MailOnline/videojs-vast-vpaid: repo-homepage - not satisfied');
-    //     assert(nock.isDone());
-    //   });
-    // });
+    return ok(run(['-l', 'ghlint'], stream, false))
+    .then(() => {
+      const lines = log.split('\n');
+      assert(/^not ok \(recent/.test(lines[0]));
+      assert(/^ok \(closing/.test(lines[1]));
+      assert(nock.isDone());
+    });
+  });
 
-    // it('should check repos with YAML config', () => {
-    //   githubMock.mock('/repos/MailOnline/videojs-vast-vpaid', '../fixtures/videojs-vast-vpaid-repo-meta');
-    //   githubMock.mock('/repos/milojs/milo', '../fixtures/milo-repo-meta');
+  it('should re-open issue', () => {
+    mockIssues('./fixtures/issues_2.json');
+    mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
+    mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/1', {}); // re-open issue
 
-    //   return ok(run(['check', '-c', './spec/fixtures/config-repos.yml'], false))
-    //   .then(() => {
-    //     assert.equal(log, 'warning MailOnline/videojs-vast-vpaid: repo-homepage - not satisfied');
-    //     assert(nock.isDone());
-    //   });
-    // });
+    return ok(run(['-l', 'ghlint'], stream, false))
+    .then(() => {
+      const lines = log.split('\n');
+      assert(/^not ok \(re-opening/.test(lines[0]));
+      assert(/^ok \(resolved/.test(lines[1]));
+      assert(nock.isDone());
+    });
+  });
 
-    // it('should check repos in orgs', () => {
-    //   githubMock.repos.organization.MailOnline.list();
-    //   githubMock.repos.organization.MailOnline.meta();
+  it('should remind about the issue', () => {
+    const issues = require('./fixtures/issues_3.json');
+    issues[0].updated_at = moment().subtract(10, 'days').toISOString();
+    mockIssues(issues);
+    mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
 
-    //   githubMock.repos.organization.milojs.list();
-    //   githubMock.repos.organization.milojs.meta();
+    return ok(run(['-l', 'ghlint'], stream, false))
+    .then(() => {
+      const lines = log.split('\n');
+      assert(/^not ok \(reminding/.test(lines[0]));
+      assert(/^ok \(no issue/.test(lines[1]));
+      assert(nock.isDone());
+    });
+  });
 
-    //   return fail(run(['--config', './spec/fixtures/config-orgs.json'], false))
-    //   .then(() => {
-    //     const expectedOutput = fs.readFileSync(path.join(__dirname, '../fixtures/config-orgs_expected_cli_output.txt'), 'utf8');
-    //     assert.equal(log, expectedOutput);
-    //     assert(nock.isDone());
-    //   });
-    // });
-
-    // it('should check repos in orgs within date range', () => {
-    //   githubMock.repos.organization.MailOnline.list();
-    //   githubMock.repos.organization.milojs.list();
-    //   githubMock.mock('/repos/MailOnline/json-schema-test', '../fixtures/mailonline_repos/json-schema-test');
-    //   githubMock.mock('/repos/MailOnline/ImageViewer', '../fixtures/mailonline_repos/ImageViewer');
-    //   githubMock.mock('/repos/milojs/milo', '../fixtures/milojs_repos/milo');
-
-    //   return ok(run([
-    //     '--config', './spec/fixtures/config-orgs.json',
-    //     '--after', '2017-01-20', '--before', '2017-02-01'
-    //   ], false)).then(() => {
-    //     assert.equal(log, 'warning MailOnline/json-schema-test: repo-homepage - not satisfied\n' +
-    //                       'warning MailOnline/ImageViewer: repo-homepage - not satisfied');
-    //     assert(nock.isDone());
-    //   });
-    // });
-
-    // it('should output results in TAP format', () => {
-    //   githubMock.mock('/repos/MailOnline/videojs-vast-vpaid', '../fixtures/videojs-vast-vpaid-repo-meta');
-    //   githubMock.mock('/repos/milojs/milo', '../fixtures/milo-repo-meta');
-
-    //   return ok(run(['check', '--tap', '-c', './spec/fixtures/config-repos.json'], false))
-    //   .then(() => {
-    //     assert.equal(log.match(/not ok/g).length, 2);
-    //     assert(/not ok \d MailOnline\/videojs-vast-vpaid: repo-homepage/.test(log));
-    //     assert(nock.isDone());
-    //   });
-    // });
-  // });
+  it('should throw if label is not passed', () => {
+    return fail(run([], stream, false));
+  });
 
 
-  // describe('help command', () => {
-  //   it('should log help', () => {
-  //     return ok(run(['help'], false))
-  //     .then(() => {
-  //       assert(/help/.test(log));
-  //     });
-  //   });
+  function mock(method, apiPath, data) {
+    if (typeof data == 'string') data = require(data);
+    nock('https://api.github.com')[method](apiPath).reply(200, data);
+  }
 
-  //   it('should log help for check', () => {
-  //     return ok(run(['help', 'check'], false))
-  //     .then(() => {
-  //       assert(/Check repositiories/.test(log));
-  //     });
-  //   });
-
-  //   it('should return error for unknown command in help', () => {
-  //     return fail(run(['help', 'unknown'], false))
-  //     .then(() => {
-  //       assert(/Unknown command/.test(log));
-  //     });
-  //   });
-  // });
-
-
-  // describe('errors', () => {
-  //   it('should return error for unknown command', () => {
-  //     return fail(run(['unknown'], false))
-  //     .then(() => {
-  //       assert(/Unknown command/.test(log));
-  //     });
-  //   });
-
-  //   it('should return error for unknown options', () => {
-  //     return fail(run(['check', '--unknown'], false))
-  //     .then(() => {
-  //       assert(/error: parameter --unknown/.test(log));
-  //     });
-  //   });
-  // });
-
-
-  function mock(method, apiPath, file) {
-    nock('https://api.github.com')[method](apiPath)
-    .reply(200, require(file));
+  function mockIssues(data) {
+    mock('get', '/repos/MailOnline/videojs-vast-vpaid/issues?labels=ghlint&state=all&per_page=30&page=1', data);
   }
 
   function replaceConsole() {
@@ -170,13 +115,13 @@ describe('cli', () => {
     });
   }
 
-  // function fail(p) {
-  //   return ok(p)
-  //   .then(
-  //     () => { throw new Error('should have thrown'); },
-  //     () => {}
-  //   );
-  // }
+  function fail(p) {
+    return ok(p)
+    .then(
+      () => { throw new Error('should have thrown'); },
+      () => {}
+    );
+  }
 
   function eachCons(func) {
     ['log', 'warn', 'error'].forEach(func);
