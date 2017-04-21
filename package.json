@@ -33,7 +33,7 @@
     "moment": "^2.18.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.0",
-    "tap-parser": "git+ssh://git@github.com/MailOnline/tap-parser"
+    "tap-parser": "MailOnline/tap-parser"
   },
   "devDependencies": {
     "coveralls": "^2.13.0",
