@@ -11,13 +11,14 @@ const moment = require('moment');
 describe('cli', () => {
   let log;
   const cons = {};
-  let stream;
+  let streams;
 
   beforeEach(() => {
     replaceConsole();
     process.stdin.setEncoding('utf8');
     log = '';
-    stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input.tap'));
+    streams = ['input.tap', 'input_no_comments.tap']
+              .map(file => fs.createReadStream(path.join(__dirname, 'fixtures', file)));
   });
 
   afterEach(() => {
@@ -25,64 +26,73 @@ describe('cli', () => {
     nock.cleanAll();
   });
 
-  it('should create issue', () => {
-    mockIssues([]);
-    mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues', './fixtures/create_issue.json');
+  [0, 1].map((i) => {
+    it(`should create issue #${i}`, () => {
+      mockIssues([]);
+      mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues', './fixtures/create_issue.json');
 
-    return ok(run(['-l', 'ghlint'], stream, false))
-    .then(() => {
-      const lines = log.split('\n');
-      assert(/^not ok \(creating/.test(lines[0]));
-      assert(/^ok \(no issue/.test(lines[1]));
-      assert(nock.isDone());
+      return ok(run(['-l', 'ghlint'], streams[i], false))
+      .then(() => {
+        const lines = log.split('\n');
+        assert(/^not ok \(creating/.test(lines[0]));
+        assert(/^ok \(no issue/.test(lines[1]));
+        assert(nock.isDone());
+      });
     });
   });
 
-  it('should close issue', () => {
-    mockIssues('./fixtures/issues_1.json');
-    mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/2/comments', {}); // add comment
-    mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/2', {}); // close issue
+  [0, 1].map((i) => {
+    it(`should close issue #${i}`, () => {
+      mockIssues('./fixtures/issues_1.json');
+      mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/2/comments', {}); // add comment
+      mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/2', {}); // close issue
 
-    return ok(run(['-l', 'ghlint'], stream, false))
-    .then(() => {
-      const lines = log.split('\n');
-      assert(/^not ok \(recent/.test(lines[0]));
-      assert(/^ok \(closing/.test(lines[1]));
-      assert(nock.isDone());
+      return ok(run(['-l', 'ghlint'], streams[i], false))
+      .then(() => {
+        const lines = log.split('\n');
+        assert(/^not ok \(recent/.test(lines[0]));
+        assert(/^ok \(closing/.test(lines[1]));
+        assert(nock.isDone());
+      });
     });
   });
 
-  it('should re-open issue', () => {
-    mockIssues('./fixtures/issues_2.json');
-    mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
-    mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/1', {}); // re-open issue
+  [0, 1].map((i) => {
+    it(`should re-open issue #${i}`, () => {
+      mockIssues('./fixtures/issues_2.json');
+      mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
+      mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/1', {}); // re-open issue
 
-    return ok(run(['-l', 'ghlint'], stream, false))
-    .then(() => {
-      const lines = log.split('\n');
-      assert(/^not ok \(re-opening/.test(lines[0]));
-      assert(/^ok \(resolved/.test(lines[1]));
-      assert(nock.isDone());
+      return ok(run(['-l', 'ghlint'], streams[i], false))
+      .then(() => {
+        const lines = log.split('\n');
+        // console.log(lines);
+        assert(/^not ok \(re-opening/.test(lines[0]));
+        assert(/^ok \(resolved/.test(lines[1]));
+        assert(nock.isDone());
+      });
     });
   });
 
-  it('should remind about the issue', () => {
-    const issues = require('./fixtures/issues_3.json');
-    issues[0].updated_at = moment().subtract(10, 'days').toISOString();
-    mockIssues(issues);
-    mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
+  [0, 1].map((i) => {
+    it(`should remind about the issue #${i}`, () => {
+      const issues = require('./fixtures/issues_3.json');
+      issues[0].updated_at = moment().subtract(10, 'days').toISOString();
+      mockIssues(issues);
+      mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
 
-    return ok(run(['-l', 'ghlint'], stream, false))
-    .then(() => {
-      const lines = log.split('\n');
-      assert(/^not ok \(reminding/.test(lines[0]));
-      assert(/^ok \(no issue/.test(lines[1]));
-      assert(nock.isDone());
+      return ok(run(['-l', 'ghlint'], streams[i], false))
+      .then(() => {
+        const lines = log.split('\n');
+        assert(/^not ok \(reminding/.test(lines[0]));
+        assert(/^ok \(no issue/.test(lines[1]));
+        assert(nock.isDone());
+      });
     });
   });
 
   it('should throw if label is not passed', () => {
-    return fail(run([], stream, false));
+    return fail(run([], streams[0], false));
   });
 
 

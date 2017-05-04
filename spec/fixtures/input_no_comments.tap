@@ -1,0 +1,26 @@
+TAP version 13
+
+ok 1 MailOnline/videojs-vast-vpaid: repo-description
+  ---
+  repo: MailOnline/videojs-vast-vpaid
+  rule: repo-description
+  issue:
+    title: Add repo description
+    
+  ...
+not ok 2 MailOnline/videojs-vast-vpaid: repo-homepage
+  ---
+  message: not satisfied
+  severity: warning
+  repo: MailOnline/videojs-vast-vpaid
+  rule: repo-homepage
+  issue:
+    title: Add repo homepage
+    
+  ...
+
+1..2
+# tests 2
+# pass 1
+
+# not ok
