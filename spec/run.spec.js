@@ -12,12 +12,13 @@ describe('cli', () => {
   let log;
   const cons = {};
   let streams;
+  const TESTS = [[], [], ['--dry']];
 
   beforeEach(() => {
     replaceConsole();
     process.stdin.setEncoding('utf8');
     log = '';
-    streams = ['input.tap', 'input_no_comments.tap']
+    streams = ['input.tap', 'input_no_comments.tap', 'input.tap']
               .map(file => fs.createReadStream(path.join(__dirname, 'fixtures', file)));
   });
 
@@ -26,66 +27,70 @@ describe('cli', () => {
     nock.cleanAll();
   });
 
-  [0, 1].map((i) => {
+  TESTS.map((args, i) => {
     it(`should create issue #${i}`, () => {
       mockIssues([]);
-      mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues', './fixtures/create_issue.json');
+      if (!dryMode(args)) mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues', './fixtures/create_issue.json');
 
-      return ok(run(['-l', 'ghlint'], streams[i], false))
+      return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
-        assert(/^not ok \(creating/.test(lines[0]));
-        assert(/^ok \(no issue/.test(lines[1]));
+        assert(/^not ok \(creating/.test(lines[1]));
+        assert(/^ok \(no issue/.test(lines[2]));
         assert(nock.isDone());
       });
     });
   });
 
-  [0, 1].map((i) => {
+  TESTS.map((args, i) => {
     it(`should close issue #${i}`, () => {
       mockIssues('./fixtures/issues_1.json');
-      mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/2/comments', {}); // add comment
-      mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/2', {}); // close issue
+      if (!dryMode(args)) {
+        mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/2/comments', {}); // add comment
+        mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/2', {}); // close issue
+      }
 
-      return ok(run(['-l', 'ghlint'], streams[i], false))
+      return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
-        assert(/^not ok \(recent/.test(lines[0]));
-        assert(/^ok \(closing/.test(lines[1]));
+        assert(/^not ok \(recent/.test(lines[1]));
+        assert(/^ok \(closing/.test(lines[2]));
         assert(nock.isDone());
       });
     });
   });
 
-  [0, 1].map((i) => {
+  TESTS.map((args, i) => {
     it(`should re-open issue #${i}`, () => {
       mockIssues('./fixtures/issues_2.json');
-      mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
-      mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/1', {}); // re-open issue
+      if (!dryMode(args)) {
+        mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
+        mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/1', {}); // re-open issue
+      }
 
-      return ok(run(['-l', 'ghlint'], streams[i], false))
+      return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
         // console.log(lines);
-        assert(/^not ok \(re-opening/.test(lines[0]));
-        assert(/^ok \(resolved/.test(lines[1]));
+        assert(/^not ok \(re-opening/.test(lines[1]));
+        assert(/^ok \(resolved/.test(lines[2]));
         assert(nock.isDone());
       });
     });
   });
 
-  [0, 1].map((i) => {
+  TESTS.map((args, i) => {
     it(`should remind about the issue #${i}`, () => {
       const issues = require('./fixtures/issues_3.json');
       issues[0].updated_at = moment().subtract(10, 'days').toISOString();
       mockIssues(issues);
-      mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
+      if (!dryMode(args)) mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
 
-      return ok(run(['-l', 'ghlint'], streams[i], false))
+      return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
-        assert(/^not ok \(reminding/.test(lines[0]));
-        assert(/^ok \(no issue/.test(lines[1]));
+        assert(/^not ok \(reminding/.test(lines[1]));
+        assert(/^ok \(no issue/.test(lines[2]));
         assert(nock.isDone());
       });
     });
@@ -116,6 +121,10 @@ describe('cli', () => {
     eachCons(method => {
       console[method] = cons[method];
     });
+  }
+
+  function dryMode(args) {
+    return args.indexOf('--dry') >= 0;
   }
 
   function ok(p) {
