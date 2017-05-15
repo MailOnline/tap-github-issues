@@ -14,8 +14,6 @@ not ok 2 MailOnline/videojs-vast-vpaid: repo-homepage
   severity: warning
   repo: MailOnline/videojs-vast-vpaid
   rule: repo-homepage
-  issue:
-    title: Add repo homepage
     
   ...
 

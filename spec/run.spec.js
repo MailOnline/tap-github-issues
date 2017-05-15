@@ -13,6 +13,7 @@ describe('cli', () => {
   const cons = {};
   let streams;
   const TESTS = [[], [], ['--dry']];
+  const ISSUES = ['issues', 'issues_default_title', 'issues'];
 
   beforeEach(() => {
     replaceConsole();
@@ -44,7 +45,7 @@ describe('cli', () => {
 
   TESTS.map((args, i) => {
     it(`should close issue #${i}`, () => {
-      mockIssues('./fixtures/issues_1.json');
+      mockIssues(`./fixtures/${ISSUES[i]}_1.json`);
       if (!dryMode(args)) {
         mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/2/comments', {}); // add comment
         mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/2', {}); // close issue
@@ -62,7 +63,7 @@ describe('cli', () => {
 
   TESTS.map((args, i) => {
     it(`should re-open issue #${i}`, () => {
-      mockIssues('./fixtures/issues_2.json');
+      mockIssues(`./fixtures/${ISSUES[i]}_2.json`);
       if (!dryMode(args)) {
         mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
         mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/1', {}); // re-open issue
@@ -81,7 +82,7 @@ describe('cli', () => {
 
   TESTS.map((args, i) => {
     it(`should remind about the issue #${i}`, () => {
-      const issues = require('./fixtures/issues_3.json');
+      const issues = require(`./fixtures/${ISSUES[i]}_3.json`);
       issues[0].updated_at = moment().subtract(10, 'days').toISOString();
       mockIssues(issues);
       if (!dryMode(args)) mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
