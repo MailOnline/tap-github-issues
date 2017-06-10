@@ -1,6 +1,6 @@
 {
   "name": "tap-github-issues",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Test reporter that converts TAP output into github issues in multiple orgs/repos",
   "main": "lib/run.js",
   "bin": {
