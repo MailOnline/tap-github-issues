@@ -33,7 +33,7 @@
     "moment": "^2.18.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.0",
-    "tap-parser": "MailOnline/tap-parser"
+    "tap-parser": "^5.4.0"
   },
   "devDependencies": {
     "coveralls": "^2.13.0",
