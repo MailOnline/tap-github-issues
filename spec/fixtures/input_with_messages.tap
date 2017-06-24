@@ -1,0 +1,22 @@
+TAP version 13
+
+not ok 1 MailOnline/videojs-vast-vpaid: commit-name
+  ---
+  message: "2 bad commit name(s) by @azukaar"
+  messages: ["Bad commit name by @azukaar:\nhttps://github.com/MailOnline/electrostatic/commit/87c9a6067fb0fc2a5b59b22930225c0d21e60cd6\nfix teams","Bad commit name by @azukaar:\nhttps://github.com/MailOnline/electrostatic/commit/5f15c3127ea828eeb85bef6afca97562286a4a37\nfix teams"]
+  severity: warning
+  repo: MailOnline/videojs-vast-vpaid
+  rule: commit-name
+  issue:
+    title: Commit names do not satisfy requirements
+    comments:
+      create: Please use semantic commit names
+      close: All commit names satisfy requirements
+    
+  ...
+
+1..1
+# tests 1
+# pass 0
+
+# not ok

@@ -97,6 +97,41 @@ describe('cli', () => {
     });
   });
 
+  TESTS.map((args, i) => {
+    it(`should add comments to the issue with extended messages #${i}`, () => {
+      const issues = require('./fixtures/issues_3.json');
+      issues[0].updated_at = moment().subtract(10, 'days').toISOString();
+      mockIssues(issues);
+      const ISSUES_API = '/repos/MailOnline/videojs-vast-vpaid/issues';
+      if (!dryMode(args)) {
+        mock('post', ISSUES_API, './fixtures/create_issue.json');
+        mock('get', `${ISSUES_API}/1/comments?per_page=30&page=1`, []);
+        mock('post', `${ISSUES_API}/1/comments`, './fixtures/create_comment.json');
+        mock('post', `${ISSUES_API}/1/comments`, './fixtures/create_comment.json');
+      }
+
+      const stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input_with_messages.tap'));
+
+      return ok(run(['-l', 'ghlint'].concat(args), stream, false))
+      .then(() => {
+        const lines = log.split('\n');
+        if (dryMode(args)) {
+          assert.equal(lines.length, 3);
+          assert(/^"dry" mode/, lines[0]);
+          assert(/^not ok \(creating/.test(lines[1]));
+          assert(/^2 comments \(adding/.test(lines[2]));
+        } else {
+          assert.equal(lines.length, 4);
+          assert(/^updating/, lines[0]);
+          assert(/^not ok \(creating/.test(lines[1]));
+          assert(/^comment \(adding/.test(lines[2]));
+          assert(/^comment \(adding/.test(lines[3]));
+        }
+        assert(nock.isDone());
+      });
+    });
+  });
+
   it('should throw if label is not passed', () => {
     return fail(run([], streams[0], false));
   });
