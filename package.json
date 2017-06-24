@@ -28,7 +28,6 @@
   },
   "homepage": "https://github.com/MailOnline/tap-github-issues#readme",
   "dependencies": {
-    "co": "^4.6.0",
     "minimist": "^1.2.0",
     "moment": "^2.18.1",
     "request": "^2.81.0",
