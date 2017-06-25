@@ -132,6 +132,26 @@ describe('cli', () => {
     });
   });
 
+  it('should update issue labels if error severity changes with --severity option', () => {
+    const issues = require('./fixtures/issues_3.json');
+    issues[0].updated_at = moment().subtract(1, 'days').toISOString(); // no reminder
+    mockIssues(issues);
+    mock('put', '/repos/MailOnline/videojs-vast-vpaid/issues/1/labels', []);
+
+    const stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input.tap'));
+
+    return ok(run(['-l', 'ghlint', '--severity'], stream, false))
+    .then(() => {
+      const lines = log.split('\n');
+      assert.equal(lines.length, 4);
+      assert(/^updating/, lines[0]);
+      assert(/^not ok \(recent/.test(lines[1]));
+      assert(/^labels \(updating/.test(lines[2]));
+      assert(/^ok \(no issue/.test(lines[3]));
+      assert(nock.isDone());
+    });
+  });
+
   it('should throw if label is not passed', () => {
     return fail(run([], streams[0], false));
   });
