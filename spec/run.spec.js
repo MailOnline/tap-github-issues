@@ -36,8 +36,11 @@ describe('cli', () => {
       return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
+        assert.equal(lines.length, 5);
         assert(/^not ok \(creating/.test(lines[1]));
         assert(/^ok \(no issue/.test(lines[2]));
+        assert(/^passed/.test(lines[3]));
+        assert(/^issues/.test(lines[4]));
         assert(nock.isDone());
       });
     });
@@ -54,8 +57,11 @@ describe('cli', () => {
       return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
+        assert.equal(lines.length, 5);
         assert(/^not ok \(recent/.test(lines[1]));
         assert(/^ok \(closing/.test(lines[2]));
+        assert(/^passed/.test(lines[3]));
+        assert(/^issues/.test(lines[4]));
         assert(nock.isDone());
       });
     });
@@ -72,9 +78,11 @@ describe('cli', () => {
       return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
-        // console.log(lines);
+        assert.equal(lines.length, 5);
         assert(/^not ok \(re-opening/.test(lines[1]));
         assert(/^ok \(resolved/.test(lines[2]));
+        assert(/^passed/.test(lines[3]));
+        assert(/^issues/.test(lines[4]));
         assert(nock.isDone());
       });
     });
@@ -90,8 +98,11 @@ describe('cli', () => {
       return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
+        assert.equal(lines.length, 5);
         assert(/^not ok \(reminding/.test(lines[1]));
         assert(/^ok \(no issue/.test(lines[2]));
+        assert(/^passed/.test(lines[3]));
+        assert(/^issues/.test(lines[4]));
         assert(nock.isDone());
       });
     });
@@ -116,16 +127,20 @@ describe('cli', () => {
       .then(() => {
         const lines = log.split('\n');
         if (dryMode(args)) {
-          assert.equal(lines.length, 3);
+          assert.equal(lines.length, 5);
           assert(/^"dry" mode/, lines[0]);
           assert(/^not ok \(creating/.test(lines[1]));
           assert(/^2 comments \(adding/.test(lines[2]));
+          assert(/^passed/.test(lines[3]));
+          assert(/^issues/.test(lines[4]));
         } else {
-          assert.equal(lines.length, 4);
+          assert.equal(lines.length, 6);
           assert(/^updating/, lines[0]);
           assert(/^not ok \(creating/.test(lines[1]));
           assert(/^comment \(adding/.test(lines[2]));
           assert(/^comment \(adding/.test(lines[3]));
+          assert(/^passed/.test(lines[4]));
+          assert(/^issues/.test(lines[5]));
         }
         assert(nock.isDone());
       });
@@ -143,11 +158,13 @@ describe('cli', () => {
     return ok(run(['-l', 'ghlint', '--severity'], stream, false))
     .then(() => {
       const lines = log.split('\n');
-      assert.equal(lines.length, 4);
+      assert.equal(lines.length, 6);
       assert(/^updating/, lines[0]);
       assert(/^not ok \(recent/.test(lines[1]));
       assert(/^labels \(updating/.test(lines[2]));
       assert(/^ok \(no issue/.test(lines[3]));
+      assert(/^passed/.test(lines[4]));
+      assert(/^issues/.test(lines[5]));
       assert(nock.isDone());
     });
   });
