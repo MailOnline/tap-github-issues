@@ -169,6 +169,24 @@ describe('cli', () => {
     });
   });
 
+  it('should log warning if test case is invalid', () => {
+    const stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input_invalid.tap'));
+
+    return ok(run(['-l', 'ghlint'], stream, false))
+    .then(() => {
+      const lines = log.split('\n');
+      assert.deepEqual(lines, [
+        'updating GitHub issues',
+        'skipping invalid test #0 (MailOnline/videojs-vast-vpaid: repo-description):',
+        'test.diag should have required property \'rule\'',
+        'test.diag.issue should have required property \'title\'',
+        'passed 0 out of 1',
+        'issues: 0 new, 0 closed, 0 re-opened, 0 reminded'
+      ]);
+      assert(nock.isDone());
+    });
+  });
+
   it('should throw if label is not passed', () => {
     return fail(run([], streams[0], false));
   });
