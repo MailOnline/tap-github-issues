@@ -2,9 +2,9 @@
   "name": "tap-github-issues",
   "version": "0.5.1",
   "description": "Test reporter that converts TAP output into github issues in multiple orgs/repos",
-  "main": "lib/run.js",
+  "main": "lib/index.js",
   "bin": {
-    "tap-github-issues": "lib/index.js"
+    "tap-github-issues": "lib/cli.js"
   },
   "scripts": {
     "eslint": "eslint lib && eslint spec",
