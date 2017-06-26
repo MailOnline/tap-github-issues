@@ -24,6 +24,19 @@
       "type": "object",
       "required": ["repo", "rule"],
       "properties": {
+        "message": {
+          "description": "not used in GitHub issues",
+          "type": "string"
+        },
+        "messages": {
+          "description": "these messages will be used as GitHub issue comments",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "severity": {
+          "description": "severity can be used as GitHub issue label",
+          "type": "string"
+        },
         "repo": {
           "description": "full repository name, including organisation",
           "type\"": "string",
