@@ -32,6 +32,7 @@ The utility consumes TAP output from ghlint.
 - `-r` (or `--remind`) - the number of days after which the reminder should be added to the issue (the default is 7 days).
 - `--severity` - add errors severity to the issues as labels (can be "error" or "warning")
 - `--dry` - generate report and list of changes to issues without making changes in GitHub
+- `--enable=false` - do NOT enable repository issues if they are disabled; by default the issues will be enabled
 
 
 ## License

@@ -33,7 +33,7 @@ describe('cli', () => {
       mockIssues([]);
       if (!dryMode(args)) mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues', './fixtures/create_issue.json');
 
-      return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
+      return ok(run(['-l', 'ghlint', '--enable=false'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
         assert.equal(lines.length, 5);
@@ -54,7 +54,7 @@ describe('cli', () => {
         mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/2', {}); // close issue
       }
 
-      return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
+      return ok(run(['-l', 'ghlint', '--enable=false'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
         assert.equal(lines.length, 5);
@@ -75,7 +75,7 @@ describe('cli', () => {
         mock('patch', '/repos/MailOnline/videojs-vast-vpaid/issues/1', {}); // re-open issue
       }
 
-      return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
+      return ok(run(['-l', 'ghlint', '--enable=false'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
         assert.equal(lines.length, 5);
@@ -95,7 +95,7 @@ describe('cli', () => {
       mockIssues(issues);
       if (!dryMode(args)) mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues/1/comments', {}); // add comment
 
-      return ok(run(['-l', 'ghlint'].concat(args), streams[i], false))
+      return ok(run(['-l', 'ghlint', '--enable=false'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
         assert.equal(lines.length, 5);
@@ -123,7 +123,7 @@ describe('cli', () => {
 
       const stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input_with_messages.tap'));
 
-      return ok(run(['-l', 'ghlint'].concat(args), stream, false))
+      return ok(run(['-l', 'ghlint', '--enable=false'].concat(args), stream, false))
       .then(() => {
         const lines = log.split('\n');
         if (dryMode(args)) {
@@ -155,7 +155,7 @@ describe('cli', () => {
 
     const stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input.tap'));
 
-    return ok(run(['-l', 'ghlint', '--severity'], stream, false))
+    return ok(run(['-l', 'ghlint', '--severity', '--enable=false'], stream, false))
     .then(() => {
       const lines = log.split('\n');
       assert.equal(lines.length, 6);
@@ -168,6 +168,29 @@ describe('cli', () => {
       assert(nock.isDone());
     });
   });
+
+
+  it('should enable repo issues if they are disabled and create issue', () => {
+    mockIssues([]);
+    mock('get', '/repos/MailOnline/videojs-vast-vpaid', {has_issues: false});
+    mock('put', '/repos/MailOnline/videojs-vast-vpaid', {has_issues: true});
+    mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues', './fixtures/create_issue.json');
+    const stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input.tap'));
+
+    return ok(run(['-l', 'ghlint'], stream, false))
+    .then(() => {
+      const lines = log.split('\n');
+      restoreConsole();
+      assert.equal(lines.length, 6);
+      assert(/^issues disabled \(enabling/.test(lines[1]));
+      assert(/^not ok \(creating/.test(lines[2]));
+      assert(/^ok \(no issue/.test(lines[3]));
+      assert.equal(lines[4], 'passed 1 out of 2');
+      assert.equal(lines[5], 'issues: 1 new, 0 closed, 0 re-opened, 0 reminded');
+      assert(nock.isDone());
+    });
+  });
+
 
   it('should log warning if test case is invalid', () => {
     const stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input_invalid.tap'));
