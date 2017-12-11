@@ -78,6 +78,7 @@ describe('cli', () => {
       return ok(run(['-l', 'ghlint', '--enable=false'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
+        // console.log('****', lines);
         assert.equal(lines.length, 5);
         assert(/^not ok \(re-opening/.test(lines[1]));
         assert(/^ok \(resolved/.test(lines[2]));
@@ -147,6 +148,12 @@ describe('cli', () => {
     });
   });
 
+
+  it.skip('should not reopen issue with reopen: false flag', () => {
+
+  });
+
+
   it('should update issue labels if error severity changes with --severity option', () => {
     const issues = require('./fixtures/issues_3.json');
     issues[0].updated_at = moment().subtract(1, 'days').toISOString(); // no reminder
@@ -209,6 +216,7 @@ describe('cli', () => {
       assert(nock.isDone());
     });
   });
+
 
   it('should throw if label is not passed', () => {
     return fail(run([], streams[0], false));
