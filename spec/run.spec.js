@@ -78,7 +78,6 @@ describe('cli', () => {
       return ok(run(['-l', 'ghlint', '--enable=false'].concat(args), streams[i], false))
       .then(() => {
         const lines = log.split('\n');
-        // console.log('****', lines);
         assert.equal(lines.length, 5);
         assert(/^not ok \(re-opening/.test(lines[1]));
         assert(/^ok \(resolved/.test(lines[2]));
@@ -149,8 +148,21 @@ describe('cli', () => {
   });
 
 
-  it.skip('should not reopen issue with reopen: false flag', () => {
+  it('should not reopen issue with `reopen: false` flag', () => {
+    mockIssues('./fixtures/issues_2.json');
+    mock('post', '/repos/MailOnline/videojs-vast-vpaid/issues', './fixtures/create_issue.json'); // create issue
+    const stream = fs.createReadStream(path.join(__dirname, 'fixtures', 'input_no_reopen.tap'));
 
+    return ok(run(['-l', 'ghlint', '--enable=false'], stream, false))
+    .then(() => {
+      const lines = log.split('\n');
+      assert.equal(lines.length, 5);
+      assert(/^not ok \(creating/.test(lines[1]));
+      assert(/^ok \(resolved/.test(lines[2]));
+      assert.equal(lines[3], 'passed 1 out of 2');
+      assert.equal(lines[4], 'issues: 1 new, 0 closed, 0 re-opened, 0 reminded');
+      assert(nock.isDone());
+    });
   });
 
 
