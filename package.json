@@ -28,19 +28,19 @@
   },
   "homepage": "https://github.com/MailOnline/tap-github-issues#readme",
   "dependencies": {
-    "ajv": "^5.2.0",
+    "ajv": "^6.5.2",
     "minimist": "^1.2.0",
     "moment": "^2.18.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.0",
-    "tap-parser": "^5.4.0"
+    "tap-parser": "^7.0.0"
   },
   "devDependencies": {
-    "coveralls": "^2.13.0",
-    "eslint": "^3.19.0",
-    "mocha": "^3.2.0",
+    "coveralls": "^3.0.2",
+    "eslint": "^5.1.0",
+    "mocha": "^5.2.0",
     "nock": "^9.0.13",
-    "nyc": "^10.2.0",
+    "nyc": "^12.0.2",
     "pre-commit": "^1.2.2"
   },
   "nyc": {
